@@ -1,5 +1,5 @@
 const express = require('express');
-const logger = require('morgan');
+//const logger = require('morgan');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -9,7 +9,7 @@ const { restaurantsRouter } = require('./routers/restaurantsRouter');
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-app.use(logger('dev'));
+//app.use(logger('dev'));
 
 app.use('/api/users', usersRouter);
 app.use('/api/restaurants', restaurantsRouter);
