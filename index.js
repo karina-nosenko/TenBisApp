@@ -1,6 +1,7 @@
 const express = require('express');
 const logger = require('morgan');
 const app = express();
+const port = process.env.PORT || 3000;
 
 const { usersRouter } = require('./routers/usersRouter');
 const { ordersRouter } = require('./routers/ordersRouter');
@@ -18,6 +19,6 @@ app.use((req, res) => {
     res.status(400).send('Something is broken!');
 });
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`Listening on port ${this.address().port} in ${app.settings.env} mode`);
+app.listen(port, () => {
+    console.log(`Listening on port ${port}`);
 });
