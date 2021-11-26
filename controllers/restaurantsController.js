@@ -1,37 +1,39 @@
-const { restaurants } = require('../data/data');
+const Restaurant = require('../models/restaurant');
 
 exports.restaurantsController = {
     getRestaurants(req, res) {
-        console.log('Get all restaurants');
-        res.json(restaurants);
+        Restaurant.find({})
+            .then(docs => res.json(docs))
+            .catch(err => console.log(`Error getting the data from db: ${err}`));
     },
     getRestaurant(req, res) {
-        console.log('Get a restaurant');
         const restaurantId = req.params.id;
-        const restaurant = restaurants.filter(restaurant => restaurant.id == restaurantId);
-        res.json(restaurant);
+        Restaurant.findOne({id: restaurantId})
+            .then(docs => res.json(docs))
+            .catch(err => console.log(`Error getting the data from db: ${err}`));
     },
     addRestaurant(req, res) {
-        console.log('Add a restaurant');
         const { body } = req;
-        restaurants.push(body);
-        res.json(restaurants);
+        const newRestaurant = new Restaurant(body);
+        const result = newRestaurant.save();
+
+        if(result) {
+            res.send('Restaurant added successfully!')
+        } else {
+            res.status(404).send('Error saving a restaurant');
+        }
     },
     updateRestaurant(req, res) {
-        console.log('Update a restaurant');
         const restaurantId = req.params.id;
-        const restaurantIndex = restaurants.findIndex(restaurant => restaurant.id == restaurantId);
-        restaurants.splice(restaurantIndex, 1);
         const { body } = req;
-        restaurants.push(body);
-        const restaurant = restaurants.filter(restaurant => restaurant.id == restaurantId);
-        res.json(restaurant);
+        Restaurant.updateOne({id: restaurantId}, body)
+            .then(() => res.send('Restaurant updated successfully!'))
+            .catch(err => console.log(`Error updating restaurant from db: ${err}`));
     },
     deleteRestaurant(req, res) {
-        console.log('Delete a restaurant');
         const restaurantId = req.params.id;
-        const restaurantIndex = restaurants.findIndex(restaurant => restaurant.id == restaurantId);
-        restaurants.splice(restaurantIndex, 1);
-        res.json(restaurants);
+        Restaurant.deleteOne({id: restaurantId})
+            .then(docs => res.send('Restaurant deleted successfully!'))
+            .catch(err => console.log(`Error deleting restaurant from db: ${err}`));
     }
 }

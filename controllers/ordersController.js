@@ -1,37 +1,39 @@
-const { orders } = require('../data/data');
+const Order = require('../models/order');
 
 exports.ordersController = {
     getOrders(req, res) {
-        console.log('Get all orders');
-        res.json(orders);
+        Order.find({})
+            .then(docs => res.json(docs))
+            .catch(err => console.log(`Error getting the data from db: ${err}`));
     },
     getOrder(req, res) {
-        console.log('Get an order');
         const orderId = req.params.id;
-        const order = orders.filter(order => order.id == orderId);
-        res.json(order);
+        Order.findOne({id: orderId})
+            .then(docs => res.json(docs))
+            .catch(err => console.log(`Error getting the data from db: ${err}`));
     },
     addOrder(req, res) {
-        console.log('Add an order');
         const { body } = req;
-        orders.push(body);
-        res.json(orders);
+        const newOrder = new Order(body);
+        const result = newOrder.save();
+
+        if(result) {
+            res.send('Order added successfully!')
+        } else {
+            res.status(404).send('Error saving an order');
+        }
     },
     updateOrder(req, res) {
-        console.log('Update an order');
         const orderId = req.params.id;
-        const orderIndex = orders.findIndex(order => order.id == orderId);
-        orders.splice(orderIndex, 1);
         const { body } = req;
-        orders.push(body);
-        const order = orders.filter(order => order.id == orderId);
-        res.json(order);
+        Order.updateOne({id: orderId}, body)
+            .then(() => res.send('Order updated successfully!'))
+            .catch(err => console.log(`Error updating order from db: ${err}`));
     },
     deleteOrder(req, res) {
-        console.log('Delete an order');
         const orderId = req.params.id;
-        const orderIndex = orders.findIndex(order => order.id == orderId);
-        orders.splice(orderIndex, 1);
-        res.json(orders);
+        Order.deleteOne({id: orderId})
+            .then(docs => res.send('Order deleted successfully'))
+            .catch(err => console.log(`Error deleting order from db: ${err}`));
     }
 }

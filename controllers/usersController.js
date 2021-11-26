@@ -1,37 +1,39 @@
-const { users } = require('../data/data');
+const User = require('../models/user');
 
 exports.usersController = {
     getUsers(req, res) {
-        console.log('Get all users');
-        res.json(users);
+        User.find({})
+            .then(docs => res.json(docs))
+            .catch(err => console.log(`Error getting the data from db: ${err}`));
     },
     getUser(req, res) {
-        console.log('Get a user');
         const userId = req.params.id;
-        const user = users.filter(user => user.id == userId);
-        res.json(user);
+        User.findOne({id: userId})
+            .then(docs => res.json(docs))
+            .catch(err => console.log(`Error getting the data from db: ${err}`));
     },
     addUser(req, res) {
-        console.log('Add a user');
         const { body } = req;
-        users.push(body);
-        res.json(users);
+        const newUser = new User(body);
+        const result = newUser.save();
+
+        if(result) {
+            res.send('User added successfully!')
+        } else {
+            res.status(404).send('Error saving a user');
+        }
     },
     updateUser(req, res) {
-        console.log('Update a user');
         const userId = req.params.id;
-        const userIndex = users.findIndex(user => user.id == userId);
-        users.splice(userIndex, 1);
         const { body } = req;
-        users.push(body);
-        const user = users.filter(user => user.id == userId);
-        res.json(user);
+        User.updateOne({id: userId}, body)
+            .then(() => res.send('User updated successfully!'))
+            .catch(err => console.log(`Error updating user from db: ${err}`));
     },
     deleteUser(req, res) {
-        console.log('Delete a user');
         const userId = req.params.id;
-        const userIndex = users.findIndex(user => user.id == userId);
-        users.splice(userIndex, 1);
-        res.json(users);
+        User.deleteOne({id: userId})
+            .then(docs => res.send('User deleted successfully'))
+            .catch(err => console.log(`Error deleting user from db: ${err}`));
     }
 }
